@@ -6,7 +6,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 SECRET_KEY = os.getenv('SECRET_KEY', 'abcdefghijklmonp')
 
-DEBUG = True
+DEBUG = os.getenv('DEBUG', 'False') == 'True'
 
 ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', '*').split(', ')
 
@@ -122,3 +122,21 @@ DJOSER = {
         'user_list': 'djoser.serializers.UserSerializer'
     }
 }
+
+PAGE_SIZE = 6
+SHOP_LIST_CONTENT_TYPE = 'text/plan'
+SHOP_LIST_FILE_NAME = 'shoplist.txt'
+USERNAME_MAX_LENGTH = 150
+FIRST_NAME_MAX_LENGTH = 150
+LAST_NAME_MAX_LENGTH = 150
+EMAIL_MAX_LENGTH = 254
+INGREDIENT_NAME_MAX_LENGTH = 200
+MEASUREMENT_UNIT_MAX_LENGTH = 200
+TAG_NAME_MAX_LENGTH = 200
+TAG_SLUG_MAX_LENGTH = 200
+RECIPE_NAME_MAX_LENGTH = 200
+TAG_COLOR_MAX_LENGTH = 7
+COOKING_TIME_MIN = 1
+COOKING_TIME_MAX = 32767
+INGREDIENT_AMOUNT_MIN = 1
+INGREDIENT_AMOUNT_MAX = 32767

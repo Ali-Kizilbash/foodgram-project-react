@@ -25,13 +25,15 @@ class TagAdmin(admin.ModelAdmin):
 @admin.register(Recipe)
 class RecipeAdmin(admin.ModelAdmin):
     inlines = (IngredientInline,)
-    list_display = ('id',
-                    'name',
-                    'author',
-                    'text',
-                    'image',
-                    'favorite_count',
-                    'cooking_time')
+    list_display = (
+        'id',
+        'name',
+        'author',
+        'text',
+        'image',
+        'favorite_count',
+        'cooking_time'
+    )
 
     def tags(self, recipe):
         tags = []
