@@ -105,9 +105,9 @@ class SubscribeSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
     def validate_author(self, author):
+        VALIDATION_ERROR = 'Невозможно подписаться на самого себя'
         if self.context['request'].user == author:
-            raise serializers.ValidationError(
-                'Невозможно подписаться на самого себя')
+            raise serializers.ValidationError(VALIDATION_ERROR)
         return author
 
     def to_representation(self, instance):
@@ -142,13 +142,13 @@ class CartSerializer(serializers.ModelSerializer):
     class Meta:
         fields = ('user', 'recipe')
         model = Cart
-        validators = [
+        validators = (
             serializers.UniqueTogetherValidator(
                 queryset=Cart.objects.all(),
                 fields=('user', 'recipe'),
                 message='Рецепт уже в корзине'
-            )
-        ]
+            ),
+        )
 
     def to_representation(self, instance):
         return RecipeSimpleSerializer(
@@ -234,23 +234,28 @@ class RecipeIngredientCreateSerializer(serializers.ModelSerializer):
     id = serializers.PrimaryKeyRelatedField(
         queryset=Ingredient.objects.all(),
     )
-    amount = serializers.IntegerField(
-        max_value=settings.INGREDIENT_AMOUNT_MAX,
-        min_value=settings.INGREDIENT_AMOUNT_MIN
-    )
+    amount = serializers.IntegerField()
 
     class Meta:
         model = RecipeIngredient
         fields = ('id', 'amount')
 
+    def validate_amount(self, amount):
+        VALIDATION_ERROR = (
+            'Допустимые значения количества ингредиента: '
+            f'{settings.INGREDIENT_AMOUNT_MIN} - '
+            f'{settings.INGREDIENT_AMOUNT_MAX}'
+        )
+        if not (settings.INGREDIENT_AMOUNT_MAX >= amount
+                >= settings.INGREDIENT_AMOUNT_MIN):
+            raise serializers.ValidationError(VALIDATION_ERROR)
+        return amount
+
 
 class RecipeCreateSerializer(serializers.ModelSerializer):
     image = Base64ImageField()
     ingredients = RecipeIngredientCreateSerializer(many=True)
-    cooking_time = serializers.IntegerField(
-        min_value=settings.COOKING_TIME_MIN,
-        max_value=settings.COOKING_TIME_MAX
-    )
+    cooking_time = serializers.IntegerField()
     tags = serializers.PrimaryKeyRelatedField(
         queryset=Tag.objects.all(),
         many=True
@@ -291,28 +296,33 @@ class RecipeCreateSerializer(serializers.ModelSerializer):
         return super().update(recipe, validated_data)
 
     def validate(self, data):
+        NO_INGREDIENT_ERROR = 'В рецепте не могут отсутствовать ингредиенты'
+        NO_TAG_ERROR = 'В рецепте не могут отсутствовать теги'
+        INGREDIENT_DUPLICATE_ERROR = 'Ингредиенты не могут дублироваться'
+        TAG_DUPLICATE_ERROR = 'Теги не могут дублироваться'
+        COOKING_TIME_ERROR = (
+            'Допустимые значения времени приготовления: '
+            f'{settings.COOKING_TIME_MIN} - '
+            f'{settings.COOKING_TIME_MAX}'
+        )
         ingredients = data.get('ingredients')
         if not ingredients:
-            raise serializers.ValidationError(
-                'В рецепте не могут отсутствовать ингредиенты'
-            )
+            raise serializers.ValidationError(NO_INGREDIENT_ERROR)
         tags = data.get('tags')
         if not tags:
-            raise serializers.ValidationError(
-                'В рецепте не могут отсутствовать теги'
-            )
+            raise serializers.ValidationError(NO_TAG_ERROR)
         validated_ingredients = []
         for ingredient in ingredients:
             if ingredient not in validated_ingredients:
                 validated_ingredients.append(ingredient)
             else:
-                raise serializers.ValidationError(
-                    'Ингредиенты не могут дублироваться'
-                )
+                raise serializers.ValidationError(INGREDIENT_DUPLICATE_ERROR)
         if len(tags) != len(set(tags)):
-            raise serializers.ValidationError(
-                'Теги не могут дублироваться'
-            )
+            raise serializers.ValidationError(TAG_DUPLICATE_ERROR)
+        if not (settings.COOKING_TIME_MAX >=
+                data.get('cooking_time')
+                >= settings.COOKING_TIME_MIN):
+            raise serializers.ValidationError(COOKING_TIME_ERROR)
         return data
 
     def to_representation(self, instance):

@@ -145,9 +145,10 @@ class RecipeViewSet(ModelViewSet):
                 f"{item['ingredient__name']} - "
                 f"{item['total']} {item['ingredient__measurement_unit']}"
             )
+        RESPONSE_CONTENT_TYPE = 'text/plan'
         response = HttpResponse(
             '\n'.join(items_list),
-            content_type=settings.SHOP_LIST_CONTENT_TYPE
+            content_type=RESPONSE_CONTENT_TYPE
         )
         response['Content-Disposition'] = \
             f'attachment; filename={settings.SHOP_LIST_FILE_NAME}'
