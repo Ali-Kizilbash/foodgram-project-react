@@ -319,9 +319,8 @@ class RecipeCreateSerializer(serializers.ModelSerializer):
                 raise serializers.ValidationError(INGREDIENT_DUPLICATE_ERROR)
         if len(tags) != len(set(tags)):
             raise serializers.ValidationError(TAG_DUPLICATE_ERROR)
-        if not (settings.COOKING_TIME_MAX >=
-                data.get('cooking_time')
-                >= settings.COOKING_TIME_MIN):
+        time = data.get('cooking_time')
+        if not settings.COOKING_TIME_MAX >= time >= settings.COOKING_TIME_MIN:
             raise serializers.ValidationError(COOKING_TIME_ERROR)
         return data
 
