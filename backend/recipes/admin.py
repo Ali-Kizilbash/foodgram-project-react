@@ -14,6 +14,7 @@ class IngredientAdmin(admin.ModelAdmin):
 class IngredientInline(admin.TabularInline):
     model = RecipeIngredient
     list_display = ('id', 'recipe', 'ingredient', 'amount')
+    list_filter = ('ingredient__measurement_unit', )
 
 
 @admin.register(Tag)
@@ -32,10 +33,14 @@ class RecipeAdmin(admin.ModelAdmin):
         'text',
         'image',
         'favorite_count',
+        'tag',
         'cooking_time'
     )
+    list_filter = ('tags', )
+    search_fields = ('user', 'name')
 
-    def tags(self, recipe):
+    @admin.display(description='Теги')
+    def tag(self, recipe):
         tags = []
         for tag in recipe.tags.all():
             tags.append(tag.name)
@@ -49,8 +54,12 @@ class RecipeAdmin(admin.ModelAdmin):
 @admin.register(Favorite)
 class FavoriteAdmin(admin.ModelAdmin):
     list_display = ('id', 'user', 'recipe')
+    list_filter = ('recipe__tags', )
+    search_fields = ('user', 'recipe')
 
 
 @admin.register(Cart)
 class CartAdmin(admin.ModelAdmin):
     list_display = ('id', 'user', 'recipe')
+    list_filter = ('recipe__tags', )
+    search_fields = ('user', 'recipe')

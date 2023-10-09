@@ -11,11 +11,11 @@ class UserAdmin(UserAdmin):
         'first_name',
         'last_name',
         'email',
-        'following',
-        'recipes'
     )
+    search_fields = ('username', 'email', )
 
 
 @admin.register(Subscribe)
 class SubscribeAdmin(admin.ModelAdmin):
     list_display = ('user', 'author', )
+    search_fields = ('user', 'author', )

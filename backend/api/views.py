@@ -50,7 +50,7 @@ class UserViewSet(DjoserViewSet):
         subscription = Subscribe.objects.filter(
             user=request.user,
             author=author
-        ).exists()
+        )
 
         if not subscription:
             return Response(
@@ -104,7 +104,7 @@ class RecipeViewSet(ModelViewSet):
         recipe = model.objects.filter(
             user=user_id,
             recipe=pk
-        ).exists()
+        )
         if not recipe:
             return Response(
                 {'errors': 'Рецепта нет в избранном'},
