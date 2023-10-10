@@ -37,7 +37,7 @@ class RecipeAdmin(admin.ModelAdmin):
         'cooking_time'
     )
     list_filter = ('tags', )
-    search_fields = ('user', 'name')
+    search_fields = ('author__username', 'name')
 
     @admin.display(description='Теги')
     def tag(self, recipe):
@@ -53,13 +53,13 @@ class RecipeAdmin(admin.ModelAdmin):
 
 @admin.register(Favorite)
 class FavoriteAdmin(admin.ModelAdmin):
-    list_display = ('id', 'user', 'recipe')
-    list_filter = ('recipe__tags', )
-    search_fields = ('user', 'recipe')
+    list_display = ('id', 'user', 'recipe', )
+    list_filter = ('recipe__tags__name', )
+    search_fields = ('user__username', 'recipe__name')
 
 
 @admin.register(Cart)
 class CartAdmin(admin.ModelAdmin):
     list_display = ('id', 'user', 'recipe')
     list_filter = ('recipe__tags', )
-    search_fields = ('user', 'recipe')
+    search_fields = ('user__username', 'recipe__name')

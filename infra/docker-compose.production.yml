@@ -1,0 +1,45 @@
+version: '3.3'
+
+volumes:
+  static:
+  backend_static:
+  media:
+  postgres:
+
+
+services:
+  db:
+    image: postgres:13
+    env_file: ../.env
+    volumes:
+      - postgres:/var/lib/postgresql/data
+    expose:
+      - "5432"
+  
+  backend:
+    image: atillaaa/foodgram_backend
+    restart: always
+    depends_on:
+      - db
+    volumes:
+      - backend_static:/app/static/
+      - media:/app/media/
+
+  frontend:
+    image: atillaaa/foodgram_frontend
+    volumes:
+      - static:/app/build/
+  
+  nginx:
+    image: nginx
+    depends_on:
+      - backend
+    ports:
+      - "8000:80"
+    volumes:
+      - ./nginx.conf:/etc/nginx/conf.d/default.conf
+      - ../frontend/build:/usr/share/nginx/html/
+      - ../docs/:/usr/share/nginx/html/api/docs/
+      - static:/static/
+      - backend_static:/backend_static/
+      - media:/media/
